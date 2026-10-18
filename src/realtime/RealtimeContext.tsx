@@ -54,7 +54,9 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         retryTimer = window.setTimeout(start, 5000) // el primer arranque no lo cubre withAutomaticReconnect
       }
     }
-    void start()
+    // Arranque diferido un tick: en desarrollo, StrictMode monta y desmonta el efecto de
+    // inmediato; así el montaje descartado nunca abre una conexión que luego se cancela.
+    retryTimer = window.setTimeout(start, 0)
 
     return () => {
       disposed = true
