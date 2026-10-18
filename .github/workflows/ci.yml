@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   build:
-    name: Lint, tipos, pruebas y build
+    name: Lint, types, tests and build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -23,11 +23,11 @@ jobs:
       - run: npm ci
       - name: Lint (oxlint)
         run: npm run lint
-      - name: Tipos (TypeScript strict)
+      - name: Type check (TypeScript strict)
         run: npm run typecheck
-      - name: Pruebas (Vitest + Testing Library)
+      - name: Tests (Vitest + Testing Library)
         run: npm test
-      - name: Build de producción
+      - name: Production build
         run: npm run build
       - uses: actions/upload-artifact@v7
         with:
@@ -35,14 +35,14 @@ jobs:
           path: dist/
 
   docker:
-    name: Imagen Docker
+    name: Docker image
     runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/checkout@v7
-      - name: Construir imagen
+      - name: Build image
         run: docker build -t live-auction-web .
-      - name: Smoke test (Nginx + fallback de SPA)
+      - name: Smoke test (Nginx + SPA fallback)
         run: |
           docker run -d -p 8080:80 --name web live-auction-web
           sleep 2
