@@ -5,6 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
 ![SignalR](https://img.shields.io/badge/SignalR-WebSockets-0A7BBB)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 Frontend de **Live Auction**, una plataforma de subastas en tiempo real. Los precios, las pujas, los
 espectadores y el resultado final llegan en vivo por **SignalR**, sin recargar la página.
@@ -110,3 +111,7 @@ src/
 | Login | Móvil |
 |---|---|
 | ![Login](docs/images/login.png) | ![Móvil](docs/images/mobile.png) |
+
+## License
+
+[MIT](LICENSE)
