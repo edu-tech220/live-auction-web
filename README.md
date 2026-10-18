@@ -5,48 +5,51 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
 ![SignalR](https://img.shields.io/badge/SignalR-WebSockets-0A7BBB)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-Frontend de **Live Auction**, una plataforma de subastas en tiempo real. Los precios, las pujas, los
-espectadores y el resultado final llegan en vivo por **SignalR**, sin recargar la página.
+Frontend for **Live Auction**, a real-time auction platform. Prices, bids, viewer counts and the
+final result arrive live through **SignalR**, without reloading the page.
 
-API y lógica de negocio: **[edu-tech220/live-auction](https://github.com/edu-tech220/live-auction)** (ASP.NET Core + SignalR + SQL Server).
+API and business logic: **[edu-tech220/live-auction](https://github.com/edu-tech220/live-auction)** (ASP.NET Core + SignalR + SQL Server).
 
-![Subasta en vivo](docs/images/auction.png)
+![Live auction](docs/images/auction.png)
 
-## Lo interesante
+> The user interface is in Spanish (es-MX); code and documentation are in English.
 
-- **Una sola conexión SignalR** para toda la app (`RealtimeProvider`), que se recrea al iniciar o
-  cerrar sesión para que el servidor vea la identidad correcta.
-- **Los eventos en vivo actualizan la caché de React Query**, no un estado paralelo: REST y SignalR
-  alimentan la misma fuente (`setQueryData` con funciones puras de `lib/auctionState.ts`).
-- **Eventos desordenados o duplicados no rompen la UI.** `bidCount` funciona como número de
-  secuencia y un evento viejo nunca "baja" el precio.
-- **Reconexión con resincronización.** Al reconectar, cada pantalla vuelve a unirse a su grupo y
-  `JoinAuction` devuelve el estado actual; lo que pasó mientras no había conexión se recupera.
-- **Sin reglas de negocio críticas en el cliente.** El navegador solo manda el monto; el servidor
-  decide si es válido, quién va ganando y cuándo termina la subasta. La cuenta regresiva se corrige
-  con el reloj del servidor, pero es solo visual.
-- **Rechazos privados.** Si tu oferta es inválida, solo tú ves el motivo (`BidRejected` va al
-  invocador). Si alguien te supera, recibes un aviso.
+## Highlights
 
-## Funcionalidades
+- **A single SignalR connection** for the whole app (`RealtimeProvider`), recreated on sign-in and
+  sign-out so the server always sees the right identity.
+- **Live events update the React Query cache**, not a parallel state: REST and SignalR feed the same
+  source (`setQueryData` with pure functions from `lib/auctionState.ts`).
+- **Out-of-order or duplicated events cannot break the UI.** `bidCount` works as a sequence number,
+  so a stale event never "lowers" the price.
+- **Reconnection with resynchronization.** After reconnecting, every screen rejoins its group and
+  `JoinAuction` returns the current state, recovering whatever happened while offline.
+- **No critical business rules in the client.** The browser only sends the amount; the server decides
+  whether it is valid, who is winning and when the auction ends. The countdown is corrected with the
+  server clock but is purely visual.
+- **Private rejections.** If your bid is invalid only you see the reason (`BidRejected` is sent to
+  the caller). If someone outbids you, you get a notification.
 
-| Pantalla | Qué hace |
+## Features
+
+| Screen | What it does |
 |---|---|
-| Catálogo | Filtros (en vivo, próximas, finalizadas), búsqueda, precios y ofertas en vivo |
-| Subasta | Precio en vivo con animación, cuenta regresiva, montos sugeridos, historial en vivo, espectadores y resultado final |
-| Mis pujas | Si vas ganando, te superaron, ganaste o perdiste |
-| Administrar | Crear y cancelar subastas (solo rol Admin) |
-| Login / Registro | Sesión con JWT; cierre automático al expirar el token |
+| Catalog | Filters (live, upcoming, finished), search, live prices and bid counts |
+| Auction | Animated live price, countdown, suggested amounts, live bid history, viewers and final result |
+| My bids | Whether you are winning, were outbid, won or lost |
+| Admin | Create and cancel auctions (Admin role only) |
+| Sign in / Sign up | JWT session; automatic sign-out when the token expires |
 
-## Stack
+## Tech stack
 
 React 19 · TypeScript (strict) · Vite 8 · React Router · TanStack Query · `@microsoft/signalr` ·
 Tailwind CSS 4 · Vitest + Testing Library · oxlint · Docker (Nginx) · GitHub Actions
 
-## Ejecutar
+## Getting started
 
-Requisitos: Node 24+ y la [API](https://github.com/edu-tech220/live-auction) corriendo.
+Requirements: Node 24+ and the [API](https://github.com/edu-tech220/live-auction) running.
 
 ```bash
 npm install
@@ -54,10 +57,10 @@ cp .env.example .env     # VITE_API_URL=http://localhost:5080
 npm run dev              # http://localhost:5173
 ```
 
-> Si corres la API con el perfil **https** de Visual Studio, usa `VITE_API_URL=https://localhost:7080`.
-> La API ya permite el origen `http://localhost:5173` por CORS en desarrollo.
+> If you run the API with Visual Studio's **https** profile, use `VITE_API_URL=https://localhost:7080`.
+> The API already allows the `http://localhost:5173` origin through CORS in development.
 
-Con Docker (la URL de la API se incluye en el build):
+With Docker (the API URL is baked in at build time):
 
 ```bash
 docker build --build-arg VITE_API_URL=http://localhost:5080 -t live-auction-web .
@@ -66,47 +69,51 @@ docker run -p 8080:80 live-auction-web   # http://localhost:8080
 
 ## Scripts
 
-| Comando | Qué hace |
+| Command | What it does |
 |---|---|
-| `npm run dev` | Servidor de desarrollo con HMR |
-| `npm test` | Pruebas (Vitest + Testing Library) |
-| `npm run typecheck` | TypeScript estricto |
+| `npm run dev` | Development server with HMR |
+| `npm test` | Tests (Vitest + Testing Library) |
+| `npm run typecheck` | Strict TypeScript |
 | `npm run lint` | oxlint |
-| `npm run build` | Build de producción en `dist/` |
+| `npm run build` | Production build into `dist/` |
 
-## Pruebas
+## Tests
 
-**32 pruebas** de unidad y componentes:
+**32 unit and component tests:**
 
-- `lib/auctionState`: aplicar eventos en vivo, ignorar duplicados y desordenados, no "revivir" una subasta finalizada.
-- `lib/api`: se envía el JWT y **solo el monto**, ProblemDetails → `ApiError` con `code`, un 401 cierra la sesión, error de red.
-- `lib/format`: cuenta regresiva con desfase del servidor, moneda.
-- Componentes: panel de puja (sugerencias, no bloquea montos bajos, vendedor y sin sesión), resultado final, tarjeta.
+- `lib/auctionState`: applying live events, ignoring duplicated and out-of-order events, never "reviving" a finished auction.
+- `lib/api`: sends the JWT and **only the amount**, ProblemDetails → `ApiError` with `code`, a 401 ends the session, network errors.
+- `lib/format`: countdown with server clock offset, currency.
+- Components: bid panel (suggestions, low amounts are not blocked client-side, seller and signed-out states), final result, auction card.
 
-Además se probó de punta a punta con dos navegadores reales contra la API (pujas en vivo,
-rechazo solo para quien pujó, aviso de "te superaron", espectadores, cierre con ganador).
+It was also tested end to end with two real browsers against the API (live bids, caller-only
+rejections, "you were outbid" notification, viewers, closing with a winner).
 
-## Estructura
+## Project structure
 
 ```
 src/
-  auth/        AuthContext (sesión, login, expiración) y almacenamiento de la sesión
-  realtime/    RealtimeProvider (conexión SignalR) y hooks useAuctionRoom / useLobby
-  lib/         cliente de la API, tipos del contrato, funciones puras de estado, formato
-  components/  Layout, AuctionCard, BidPanel, historial, resultado, UI
+  auth/        AuthContext (session, sign-in, expiration) and session storage
+  realtime/    RealtimeProvider (SignalR connection) and useAuctionRoom / useLobby hooks
+  lib/         API client, contract types, pure state functions, formatting
+  components/  Layout, AuctionCard, BidPanel, history, result, UI
   pages/       Home, Auction, Auth, MyBids, Admin
 ```
 
-## Capturas
+## Screenshots
 
-| Catálogo | Resultado final |
+| Catalog | Final result |
 |---|---|
-| ![Catálogo](docs/images/home.png) | ![Finalizada](docs/images/finished.png) |
+| ![Catalog](docs/images/home.png) | ![Finished](docs/images/finished.png) |
 
-| Mis pujas | Administración |
+| My bids | Admin |
 |---|---|
-| ![Mis pujas](docs/images/mybids.png) | ![Admin](docs/images/admin.png) |
+| ![My bids](docs/images/mybids.png) | ![Admin](docs/images/admin.png) |
 
-| Login | Móvil |
+| Sign in | Mobile |
 |---|---|
-| ![Login](docs/images/login.png) | ![Móvil](docs/images/mobile.png) |
+| ![Sign in](docs/images/login.png) | ![Mobile](docs/images/mobile.png) |
+
+## License
+
+[MIT](LICENSE)
